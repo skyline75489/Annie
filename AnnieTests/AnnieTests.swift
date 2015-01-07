@@ -8,6 +8,7 @@
 
 import Cocoa
 import XCTest
+//import Annie
 
 class AnnieTests: XCTestCase {
     
@@ -21,16 +22,40 @@ class AnnieTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        XCTAssert(true, "Pass")
+    func testNewLine() {
+        XCTAssertEqual("", markdown("\n"), "Newline one Pass")
+        XCTAssertEqual("", markdown("\n\n"), "Newline two Pass")
     }
     
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock() {
-            // Put the code you want to measure the time of here.
-        }
+    func testHeading() {
+        XCTAssertEqual("<h1>Hello</h1>", markdown("# Hello"), "H1 Heading Pass")
+        XCTAssertEqual("<h2>Hello</h2>", markdown("## Hello"), "H2 Heading Pass")
+        XCTAssertEqual("<h3>Hello</h3>", markdown("### Hello"), "H3 Heading Pass")
+        XCTAssertEqual("<h4>Hello</h4>", markdown("#### Hello"), "H4 Heading Pass")
+        XCTAssertEqual("<h5>Hello</h5>", markdown("##### Hello"), "H5 Heading Pass")
+        XCTAssertEqual("<h6>Hello</h6>", markdown("###### Hello"), "H6 Heading Pass")
     }
     
+    func testLHeading() {
+        XCTAssertEqual("<h1>Hello</h1>", markdown("Hello\n====="), "H1 LHeading Pass")
+        XCTAssertEqual("<h2>Hello</h2>", markdown("Hello\n-----"), "H2 LHeading Pass")
+    }
+    
+    func testFencedCode() {
+        XCTAssertEqual("<pre><code class=\"lang-swift\">println(\"Hello\")\n</code></pre>\n", markdown("```swift\nprintln(\"Hello\")\n```"), "Fenced Code Pass")
+    }
+    
+    func testBlockCode() {
+        XCTAssertEqual("<pre><code>printf(\"Hello World\")\n</code></pre>\n", markdown("    printf(\"Hello World\")"), "Block Code Pass")
+    }
+    
+    func testHRule() {
+        XCTAssertEqual("<hr>\n", markdown("-----"), "HRule dashes Pass")
+        XCTAssertEqual("<hr>\n", markdown("***"), "HRule asterisks Pass")
+        XCTAssertEqual("<hr>\n", markdown("___"), "HRule underscope Pass")
+    }
+    
+    func testBlockQuote() {
+        XCTAssertEqual("<blockquote><h3>Hello</h3>\n</blockquote>\n", markdown(">### Hello\n"), "HRule dashes Pass")
+    }
 }

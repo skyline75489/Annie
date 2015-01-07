@@ -10,6 +10,14 @@
 		2DA00E441A5BB81B00C2AADF /* Annie.h in Headers */ = {isa = PBXBuildFile; fileRef = 2DA00E431A5BB81B00C2AADF /* Annie.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2DA00E4A1A5BB81B00C2AADF /* Annie.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DA00E3E1A5BB81B00C2AADF /* Annie.framework */; };
 		2DA00E511A5BB81B00C2AADF /* AnnieTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E501A5BB81B00C2AADF /* AnnieTests.swift */; };
+		2DA00E5D1A5BB85100C2AADF /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E5A1A5BB85100C2AADF /* Regex.swift */; };
+		2DA00E5E1A5BB85100C2AADF /* Regex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E5A1A5BB85100C2AADF /* Regex.swift */; };
+		2DA00E5F1A5BB85100C2AADF /* BlockTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E5B1A5BB85100C2AADF /* BlockTokens.swift */; };
+		2DA00E601A5BB85100C2AADF /* BlockTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E5B1A5BB85100C2AADF /* BlockTokens.swift */; };
+		2DA00E611A5BB85100C2AADF /* InlineTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E5C1A5BB85100C2AADF /* InlineTokens.swift */; };
+		2DA00E621A5BB85100C2AADF /* InlineTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E5C1A5BB85100C2AADF /* InlineTokens.swift */; };
+		2DA00E641A5BB86400C2AADF /* Annie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E631A5BB86400C2AADF /* Annie.swift */; };
+		2DA00E651A5BB86400C2AADF /* Annie.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DA00E631A5BB86400C2AADF /* Annie.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -29,6 +37,10 @@
 		2DA00E491A5BB81B00C2AADF /* AnnieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AnnieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2DA00E4F1A5BB81B00C2AADF /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2DA00E501A5BB81B00C2AADF /* AnnieTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnnieTests.swift; sourceTree = "<group>"; };
+		2DA00E5A1A5BB85100C2AADF /* Regex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Regex.swift; sourceTree = "<group>"; };
+		2DA00E5B1A5BB85100C2AADF /* BlockTokens.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BlockTokens.swift; sourceTree = "<group>"; };
+		2DA00E5C1A5BB85100C2AADF /* InlineTokens.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InlineTokens.swift; sourceTree = "<group>"; };
+		2DA00E631A5BB86400C2AADF /* Annie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Annie.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +83,10 @@
 		2DA00E401A5BB81B00C2AADF /* Annie */ = {
 			isa = PBXGroup;
 			children = (
+				2DA00E631A5BB86400C2AADF /* Annie.swift */,
+				2DA00E5A1A5BB85100C2AADF /* Regex.swift */,
+				2DA00E5B1A5BB85100C2AADF /* BlockTokens.swift */,
+				2DA00E5C1A5BB85100C2AADF /* InlineTokens.swift */,
 				2DA00E431A5BB81B00C2AADF /* Annie.h */,
 				2DA00E411A5BB81B00C2AADF /* Supporting Files */,
 			);
@@ -209,6 +225,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2DA00E5D1A5BB85100C2AADF /* Regex.swift in Sources */,
+				2DA00E641A5BB86400C2AADF /* Annie.swift in Sources */,
+				2DA00E611A5BB85100C2AADF /* InlineTokens.swift in Sources */,
+				2DA00E5F1A5BB85100C2AADF /* BlockTokens.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,7 +236,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2DA00E621A5BB85100C2AADF /* InlineTokens.swift in Sources */,
 				2DA00E511A5BB81B00C2AADF /* AnnieTests.swift in Sources */,
+				2DA00E5E1A5BB85100C2AADF /* Regex.swift in Sources */,
+				2DA00E651A5BB86400C2AADF /* Annie.swift in Sources */,
+				2DA00E601A5BB85100C2AADF /* BlockTokens.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -315,6 +339,7 @@
 		2DA00E551A5BB81B00C2AADF /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -326,12 +351,14 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
 		2DA00E561A5BB81B00C2AADF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
