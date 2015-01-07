@@ -22,6 +22,14 @@ class AnnieTests: XCTestCase {
         super.tearDown()
     }
     
+    func testEscape() {
+        XCTAssertEqual("&amp;", markdown("&"), "&amp; escape Pass")
+        XCTAssertEqual("&lt;", markdown("<"), "&lt; escape Pass")
+        XCTAssertEqual("&gt;", markdown(">"), "&gt; escape Pass")
+        XCTAssertEqual("&quot;", markdown("\""), "&quot; Pass")
+        XCTAssertEqual("&#39;", markdown("\'"), "&#39; one Pass")
+    }
+    
     func testNewLine() {
         XCTAssertEqual("", markdown("\n"), "Newline one Pass")
         XCTAssertEqual("", markdown("\n\n"), "Newline two Pass")
@@ -42,11 +50,11 @@ class AnnieTests: XCTestCase {
     }
     
     func testFencedCode() {
-        XCTAssertEqual("<pre><code class=\"lang-swift\">println(\"Hello\")\n</code></pre>\n", markdown("```swift\nprintln(\"Hello\")\n```"), "Fenced Code Pass")
+        XCTAssertEqual("<pre><code class=\"lang-swift\">println(&quot;Hello&quot;)\n</code></pre>\n", markdown("```swift\nprintln(\"Hello\")\n```"), "Fenced Code Pass")
     }
     
     func testBlockCode() {
-        XCTAssertEqual("<pre><code>printf(\"Hello World\")\n</code></pre>\n", markdown("    printf(\"Hello World\")"), "Block Code Pass")
+        XCTAssertEqual("<pre><code>printf(&quot;Hello World&quot;)\n</code></pre>\n", markdown("    printf(\"Hello World\")"), "Block Code Pass")
     }
     
     func testHRule() {
@@ -61,9 +69,10 @@ class AnnieTests: XCTestCase {
     
     func testDefLinks() {
         XCTAssertEqual("<a href=\"www.google.com\">Google</a>", markdown("[Google][]\n\n [Google]:www.google.com\n"), "Deflink no title Pass")
+        XCTAssertEqual("<a href=\"www.google.com\" title=\"GoogleSearch\">Google</a>", markdown("[Google][]\n\n [Google]:www.google.com \"GoogleSearch\"\n"), "Deflink no title Pass")
     }
 
     func testInlineCode() {
-        XCTAssertEqual("<code>Hello</code>", markdown("`Hello`\n"), "HRule dashes Pass")
+        XCTAssertEqual("<code>Hello</code>", markdown("`Hello`\n"), "InlineCode Pass")
     }
 }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-class InlineCode: TokenBase {
+class InlineCode: TokenEscapedText {
     var lang = ""
     init (text:String) {
         super.init(type: "code", text: text)
@@ -18,7 +18,7 @@ class InlineCode: TokenBase {
     }
 }
 
-class Link: TokenBase {
+class Link: TokenEscapedText {
     var link = ""
     var title = ""
     var fullText = ""
@@ -30,13 +30,11 @@ class Link: TokenBase {
         if title.isEmpty {
             self.fullText = "<a href=\"\(link)\">\(text)</a>"
         } else {
-            //TODO Escape
-            self.fullText = "<a href=\"\(link)\" title=\"\(title)\">\(text)</a>"
+            self.fullText = "<a href=\"\(link)\" title=\"\(escape(title))\">\(text)</a>"
         }
     }
     
     override func render() -> String {
         return self.fullText
     }
-    
 }

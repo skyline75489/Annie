@@ -8,6 +8,14 @@
 
 import Foundation
 
+func escape(var text: String) -> String {
+    text = text.stringByReplacingOccurrencesOfString("&", withString: "&amp;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+    text = text.stringByReplacingOccurrencesOfString("<", withString: "&lt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+    text = text.stringByReplacingOccurrencesOfString(">", withString: "&gt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+    text = text.stringByReplacingOccurrencesOfString("\"", withString: "&quot;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+    text = text.stringByReplacingOccurrencesOfString("'", withString: "&#39;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+    return text
+}
 
 class BlockParser {
     var definedLinks = [String:[String:String]]()
@@ -15,13 +23,12 @@ class BlockParser {
     var grammarRegexMap = [String:Regex]()
     
     let defaultRules = ["newline", "hrule", "block_code", "fences", "heading",
-        "nptable", "lheading", "block_quote",
-        "list_block", "block_html", "def_links",
-        "def_footnotes", "table", "paragraph", "text"
-    ]
+                        "nptable", "lheading", "block_quote",
+                        "list_block", "block_html", "def_links",
+                        "def_footnotes", "table", "paragraph", "text"]
+    
     let list_rules = ["newline", "block_code", "fences", "lheading", "hrule",
-        "block_quote", "list_block", "block_html", "text",
-    ]
+                      "block_quote", "list_block", "block_html", "text",]
     
     init() {
         addGrammar("def_links", regex: Regex(pattern:"^ *\\[([^^\\]]+)\\]: *<?([^\\s>]+)>?(?: +[\"(]([^\n]+)[\")])? *(?:\n+|$)"))
@@ -242,7 +249,7 @@ class InlineParser {
         return InlineCode(text: m.group(2))
     }
     func outputText(m: RegexMatch) -> TokenBase {
-        return TokenBase(type: "text", text: m.group(0))
+        return TokenEscapedText(type: "text", text: m.group(0))
     }
 }
 
@@ -252,6 +259,8 @@ let inlineParser = InlineParser()
 public func markdown(text:String) -> String {
     // Clean up
     blockParser.tokens = [TokenBase]()
+    blockParser.definedLinks = [String:[String:String]]()
+    inlineParser.links = [String:[String:String]]()
     return parse(text)
 }
 
@@ -261,7 +270,9 @@ private func parse(text:String) -> String {
     // Setup deflinks
     inlineParser.links = blockParser.definedLinks
     for token in tokens {
-        inlineParser.parse(&token.text)
+        if token.type == "text" {
+            inlineParser.parse(&token.text)
+        }
         result += token.render()
     }
     return result
