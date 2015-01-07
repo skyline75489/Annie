@@ -58,4 +58,12 @@ class AnnieTests: XCTestCase {
     func testBlockQuote() {
         XCTAssertEqual("<blockquote><h3>Hello</h3>\n</blockquote>\n", markdown(">### Hello\n"), "HRule dashes Pass")
     }
+    
+    func testDefLinks() {
+        XCTAssertEqual("<a href=\"www.google.com\">Google</a>", markdown("[Google][]\n\n [Google]:www.google.com\n"), "Deflink no title Pass")
+    }
+
+    func testInlineCode() {
+        XCTAssertEqual("<code>Hello</code>", markdown("`Hello`\n"), "HRule dashes Pass")
+    }
 }
