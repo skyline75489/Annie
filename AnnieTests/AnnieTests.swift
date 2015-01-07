@@ -75,4 +75,14 @@ class AnnieTests: XCTestCase {
     func testInlineCode() {
         XCTAssertEqual("<code>Hello</code>", markdown("`Hello`\n"), "InlineCode Pass")
     }
+    
+    func testDoubleEmphasis() {
+        XCTAssertEqual("<strong>Hello</strong>", markdown("**Hello**"), "Double Emphasis Asterisk Pass")
+        XCTAssertEqual("<strong>World</strong>", markdown("__World__"), "Double Emphasis Underscope Pass")
+    }
+    
+    func testEmphasis() {
+        XCTAssertEqual("<em>Hello</em>", markdown("*Hello*"), "Emphasis Asterisk Pass")
+        XCTAssertEqual("<em>World</em>", markdown("_World_"), "Emphasis Underscope Pass")
+    }
 }

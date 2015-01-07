@@ -38,3 +38,23 @@ class Link: TokenEscapedText {
         return self.fullText
     }
 }
+
+class DoubleEmphasis: TokenEscapedText {
+    init(text: String) {
+        super.init(type: "double_emphasis", text: text)
+    }
+    
+    override func render() -> String {
+        return "<strong>\(text)</strong>"
+    }
+}
+
+class Emphasis: TokenEscapedText {
+    init(text: String) {
+        super.init(type: "emphasis", text: text)
+    }
+    
+    override func render() -> String {
+        return "<em>\(text)</em>"
+    }
+}
