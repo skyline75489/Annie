@@ -85,7 +85,7 @@ class RegexMatch  {
     
     func group(index:Int) -> String {
         // Index out of bound
-        if index > rangeCount + 1 {
+        if index >= matchedString.count {
             return ""
         }
         return matchedString[index]

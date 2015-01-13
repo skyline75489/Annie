@@ -94,3 +94,33 @@ class BlockQuote: TokenBase {
         }
     }
 }
+
+class ListBlock: TokenBase {
+    var ordered: Bool = false
+    init(type: String, ordered: Bool) {
+        super.init(type: type, text: "")
+        self.ordered = ordered
+    }
+    override func render() -> String {
+        let tag = self.ordered ? "ol" : "ul"
+        if type == "listBlockStart" {
+            return "<\(tag)>"
+        } else {
+            return "</\(tag)>\n"
+        }
+    }
+}
+
+class ListItem: TokenBase {
+    init(type: String) {
+        super.init(type: type, text: "")
+    }
+    override func render() -> String {
+        if type == "listItemStart" {
+            return "<li>"
+        } else {
+            return "</li>"
+        }
+    }
+}
+

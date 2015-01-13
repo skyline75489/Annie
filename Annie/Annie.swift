@@ -43,6 +43,14 @@ class BlockParser {
         addGrammar("block_code", regex: Regex(pattern: "^( {4}[^\n]+\n*)+"))
         addGrammar("hrule", regex: Regex(pattern: "^ {0,3}[-*_](?: *[-*_]){2,} *(?:\n+|$)"))
         addGrammar("block_quote", regex: Regex(pattern: "^( *>[^\n]+(\n[^\n]+)*\n*)+"))
+        
+        let def_links_regex = self.grammarRegexMap["def_links"]!
+        let def_footnotes_regex = self.grammarRegexMap["def_footnotes"]!
+        let list_block_pattern = String(format: "^( *)([*+-]|\\d+\\.) [\\s\\S]+?(?:\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))|\\n+(?=%s)|\\n{2,}(?! )(?!\\1(?:[*+-]|\\d+\\.) )\\n*|\\s*$)", def_links_regex._pattern)
+        
+        addGrammar("list_block", regex: Regex(pattern: list_block_pattern))
+        addGrammar("list_item", regex: Regex(pattern: "^(( *)(?:[*+-]|\\d+\\.) [^\\n]*(?:\\n(?!\\2(?:[*+-]|\\d+\\.) )[^\\n]*)*)"))
+        addGrammar("list_bullet", regex: Regex(pattern: "^ *(?:[*+-]|\\d+\\.) +"))
         addGrammar("text", regex: Regex(pattern: "^[^\n]+"))
     }
     
@@ -54,9 +62,9 @@ class BlockParser {
         text.removeRange(Range<String.Index>(start: text.startIndex, end: advance(text.startIndex,length)))
     }
     
-    func parse(var text:String) -> [TokenBase]{
+    func parse(var text:String, rules: [String] = []) -> [TokenBase]{
         while !text.isEmpty {
-            let token = getNextToken(text)
+            let token = getNextToken(text, rules: rules)
             tokens.append(token.token)
             forward(&text, length:token.length)
         }
@@ -86,8 +94,11 @@ class BlockParser {
         }
     }
     
-    func getNextToken(text:String) -> (token:TokenBase, length:Int) {
-        for rule in defaultRules {
+    func getNextToken(text:String, var rules: [String]) -> (token:TokenBase, length:Int) {
+        if rules.isEmpty {
+            rules = defaultRules
+        }
+        for rule in rules {
             if let regex  = grammarRegexMap[rule] {
                 if let m = regex.match(text) {
                     let forwardLength = countElements(m.group(0))
@@ -95,6 +106,11 @@ class BlockParser {
                     // Special case
                     if rule == "def_links" {
                         parseDefLinks(m)
+                        return (TokenNone(), forwardLength)
+                    }
+                    
+                    if rule == "list_block" {
+                        parseListBlock(m)
                         return (TokenNone(), forwardLength)
                     }
                     
@@ -163,6 +179,33 @@ class BlockParser {
         return BlockQuote(type: "blockQuoteEnd", text: "")
     }
     
+    func parseListBlock(m: RegexMatch) {
+        let bull = m.group(2)
+        let ordered = bull.rangeOfString(".") != nil
+        tokens.append(ListBlock(type: "listBlockStart", ordered: ordered))
+        let caps = m._str.componentsSeparatedByString("\n")
+        for cap in caps {
+            processListItem(cap, bull: bull)
+        }
+        tokens.append(ListBlock(type: "listBlockEnd", ordered: ordered))
+    }
+    
+    func processListItem(cap: String, bull: String) {
+        if cap.isEmpty {
+            return
+        }
+        let list_item_regex = self.grammarRegexMap["list_item"]!
+        tokens.append(ListItem(type: "listItemStart"))
+        if let caps = list_item_regex.match(cap) {
+            var text = caps.group(0)
+            let list_bullet_regex = self.grammarRegexMap["list_bullet"]!
+            if let m = list_bullet_regex.match(text) {
+                text.removeRange(m.range())
+            }
+            self.parse(text, rules: listRules)
+        }
+        tokens.append(ListItem(type: "listItemEnd"))
+    }
     func parseDefLinks(m: RegexMatch) {
         let key = m.group(1)
         definedLinks[key] = [
