@@ -48,6 +48,15 @@ class NewLine: TokenBase {
     }
 }
 
+class Paragraph: TokenBase {
+    init(text:String) {
+        super.init(type: "paragraph", text: text)
+    }
+    override func render() -> String {
+        return "<p>\(trimWhitespace(text))</p>\n"
+    }
+}
+
 class Heading: TokenBase {
     var level:Int = 1
     init (text:String, level:Int) {
@@ -55,7 +64,7 @@ class Heading: TokenBase {
         self.level = level
     }
     override func render() -> String {
-        return "<h\(level)>\(text)</h\(level)>"
+        return "<h\(level)>\(text)</h\(level)>\n"
     }
 }
 

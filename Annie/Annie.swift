@@ -19,6 +19,20 @@ func escape(var text: String, quote: Bool = true) -> String {
     return text
 }
 
+func trimWhitespace(text: String) -> String {
+    if let regex = try? NSRegularExpression(pattern: "\\s", options: NSRegularExpressionOptions.CaseInsensitive) {
+        return regex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
+    }
+    return ""
+}
+
+func getPurePattern(pattern:String) -> String {
+    var p = pattern
+    if pattern.hasPrefix("^") {
+        p = pattern.substringFromIndex(pattern.startIndex.advancedBy(1))
+    }
+    return p
+}
 
 class BlockParser {
     var definedLinks = [String:[String:String]]()
@@ -34,24 +48,43 @@ class BlockParser {
         "block_quote", "list_block", "block_html", "text",]
     
     init() {
-        addGrammar("def_links", regex: Regex(pattern:"^ *\\[([^^\\]]+)\\]: *<?([^\\s>]+)>?(?: +[\"(]([^\n]+)[\")])? *(?:\n+|$)"))
-        addGrammar("def_footnotes", regex: Regex(pattern:"^\\[\\^([^\\]]+)\\]: *([^\n]*(?:\n+|$)(?: {1,}[^\n]*(?:\n+|$))*)"))
-        addGrammar("newline", regex: Regex(pattern: "^\n+"))
-        addGrammar("heading", regex: Regex(pattern: "^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)"))
-        addGrammar("lheading", regex: Regex(pattern: "^([^\n]+)\n *(=|-)+ *(?:\n+|$)"))
-        addGrammar("fences", regex: Regex(pattern: "^ *(`{3,}|~{3,}) *(\\S+)? *\n([\\s\\S]+?)\\s\\1 *(?:\\n+|$)"))
-        addGrammar("block_code", regex: Regex(pattern: "^( {4}[^\n]+\n*)+"))
-        addGrammar("hrule", regex: Regex(pattern: "^ {0,3}[-*_](?: *[-*_]){2,} *(?:\n+|$)"))
-        addGrammar("block_quote", regex: Regex(pattern: "^( *>[^\n]+(\n[^\n]+)*\n*)+"))
+        let def_links_regex = "^ *\\[([^^\\]]+)\\]: *<?([^\\s>]+)>?(?: +[\"(]([^\n]+)[\")])? *(?:\n+|$)"
+        let def_footnotes_regex = "^\\[\\^([^\\]]+)\\]: *([^\n]*(?:\n+|$)(?: {1,}[^\n]*(?:\n+|$))*)"
+        let newline_regex = "^\n+"
+        let heading_regex = "^ *(#{1,6}) *([^\n]+?) *#* *(?:\n+|$)"
+        let lheading_regex = "^([^\n]+)\n *(=|-)+ *(?:\n+|$)"
+        let fences_regex = "^ *(`{3,}|~{3,}) *(\\S+)? *\n([\\s\\S]+?)\\s\\1 *(?:\\n+|$)"
+        let block_code_regex = "^( {4}[^\n]+\n*)+"
+        let hrule_regex = "^ {0,3}[-*_](?: *[-*_]){2,} *(?:\n+|$)"
+        let block_quote_regex = "^( *>[^\n]+(\n[^\n]+)*\n*)+"
         
-        let def_links_regex = self.grammarRegexMap["def_links"]!
-        let def_footnotes_regex = self.grammarRegexMap["def_footnotes"]!
-        let list_block_pattern = String(format: "^( *)([*+-]|\\d+\\.) [\\s\\S]+?(?:\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))|\\n+(?=%s)|\\n{2,}(?! )(?!\\1(?:[*+-]|\\d+\\.) )\\n*|\\s*$)", def_links_regex.pattern)
+        let list_block_regex = String(format: "^( *)([*+-]|\\d+\\.) [\\s\\S]+?(?:\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))|\\n+(?=%@)|\\n{2,}(?! )(?!\\1(?:[*+-]|\\d+\\.) )\\n*|\\s*$)", def_links_regex)
         
-        addGrammar("list_block", regex: Regex(pattern: list_block_pattern))
-        addGrammar("list_item", regex: Regex(pattern: "^(( *)(?:[*+-]|\\d+\\.) [^\\n]*(?:\\n(?!\\2(?:[*+-]|\\d+\\.) )[^\\n]*)*)"))
-        addGrammar("list_bullet", regex: Regex(pattern: "^ *(?:[*+-]|\\d+\\.) +"))
-        addGrammar("text", regex: Regex(pattern: "^[^\n]+"))
+        let list_item_regex = "^(( *)(?:[*+-]|\\d+\\.) [^\\n]*(?:\\n(?!\\2(?:[*+-]|\\d+\\.) )[^\\n]*)*)"
+        let list_bullet_regex = "^ *(?:[*+-]|\\d+\\.) +"
+        
+        let paragraph_regex = String(format: "^((?:[^\\n]+\\n?(?!%@|%@|%@|%@|%@|%@|%@))+)\\n*",  getPurePattern(fences_regex).stringByReplacingOccurrencesOfString("\\1", withString: "\\2"), getPurePattern(list_block_regex).stringByReplacingOccurrencesOfString("\\1", withString: "\\3"), getPurePattern(hrule_regex), getPurePattern(heading_regex), getPurePattern(lheading_regex), getPurePattern(block_quote_regex), getPurePattern(def_links_regex))
+        
+        let text_regex = "^[^\n]+"
+        
+        //let def_footnotes_regex = self.grammarRegexMap["def_footnotes"]!
+        
+        addGrammar("def_links", regex: Regex(pattern: def_links_regex))
+        addGrammar("def_footnotes", regex: Regex(pattern:def_footnotes_regex))
+        addGrammar("newline", regex: Regex(pattern: newline_regex))
+        addGrammar("heading", regex: Regex(pattern: heading_regex))
+        addGrammar("lheading", regex: Regex(pattern: lheading_regex))
+        addGrammar("fences", regex: Regex(pattern: fences_regex))
+        addGrammar("block_code", regex: Regex(pattern: block_code_regex))
+        addGrammar("hrule", regex: Regex(pattern: hrule_regex))
+        addGrammar("block_quote", regex: Regex(pattern: block_code_regex))
+        
+        
+        addGrammar("list_block", regex: Regex(pattern: list_block_regex))
+        addGrammar("list_item", regex: Regex(pattern: list_item_regex))
+        addGrammar("list_bullet", regex: Regex(pattern: list_bullet_regex))
+        addGrammar("paragraph", regex: Regex(pattern: paragraph_regex))
+        addGrammar("text", regex: Regex(pattern: text_regex))
     }
     
     func addGrammar(name:String, regex:Regex) {
@@ -87,6 +120,8 @@ class BlockParser {
             return parseHRule
         case "block_quote":
             return parseBlockQuote
+        case "paragraph":
+            return parseParagraph
         case "text":
             return parseText
         default:
@@ -211,6 +246,11 @@ class BlockParser {
             "link": m.group(2),
             "title": m.matchedString.count > 3 ? m.group(3) : ""
         ]
+    }
+    
+    func parseParagraph(m: RegexMatch) -> TokenBase {
+        let text = m.group(1)
+        return Paragraph(text: text)
     }
     
     func parseText(m: RegexMatch) -> TokenBase {
