@@ -12,6 +12,14 @@ extension String {
     var length : Int {
         return self.characters.count
     }
+    
+    func repeatString(n:Int) -> String {
+        var result = self
+        for _ in 1 ..< n {
+            result.appendContentsOf(self)
+        }
+        return result
+    }
 }
 
 class Regex : Hashable, Equatable{

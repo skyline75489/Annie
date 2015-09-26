@@ -22,15 +22,40 @@ class AnnieTests: XCTestCase {
         super.tearDown()
     }
     
-    func testFromFile() {
+    func getTestCaseFromFile(name:String) -> (expectOutput:String, realOutput :String) {
         var input:NSString?
         var output: NSString?
-        if let url1 = NSBundle(forClass: self.dynamicType).URLForResource("headers", withExtension: "text") {
+        if let url1 = NSBundle(forClass: self.dynamicType).URLForResource(name, withExtension: "text") {
             input = try? NSString(contentsOfURL: url1, encoding: NSUTF8StringEncoding)
         }
-        if let url2 = NSBundle(forClass: self.dynamicType).URLForResource("headers", withExtension: "html") {
+        if let url2 = NSBundle(forClass: self.dynamicType).URLForResource(name, withExtension: "html") {
             output = try? NSString(contentsOfURL: url2, encoding: NSUTF8StringEncoding)
         }
-        XCTAssertEqual(trimWhitespace(String(output!)), trimWhitespace(markdown(String(input!))))
+        return (trimWhitespace(String(output!)),trimWhitespace(markdown(String(input!))))
+    }
+    
+    func testHeaders() {
+        let test = getTestCaseFromFile("headers")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testHorizontalRules() {
+        let test = getTestCaseFromFile("horizontal_rules")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testStrongAndEm() {
+        let test = getTestCaseFromFile("strong_and_em_together")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testCodeSpan() {
+        let test = getTestCaseFromFile("code_spans")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testCodeBlocks() {
+        let test = getTestCaseFromFile("code_blocks")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
     }
 }

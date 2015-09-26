@@ -18,7 +18,7 @@ class InlineCode: TokenEscapedText {
     }
 }
 
-class DoubleEmphasis: TokenEscapedText {
+class DoubleEmphasis: TokenBase {
     init(text: String) {
         super.init(type: "double_emphasis", text: text)
     }
@@ -60,7 +60,7 @@ class AutoLink: TokenBase {
     var link = ""
     var title = ""
     var isEmail: Bool = false
-    init(var link: String, isEmail: Bool = false) {
+    init(link: String, isEmail: Bool = false) {
         super.init(type: "autolink", text: escape(link))
         self.link = self.text
         self.isEmail = isEmail

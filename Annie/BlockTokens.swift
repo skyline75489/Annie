@@ -30,8 +30,8 @@ class TokenNone: TokenBase {
 }
 
 class TokenEscapedText: TokenBase {
-    override init (type:String, text:String) {
-        super.init(type: type, text: escape(text))
+    init (type:String, text:String, escapeQuote: Bool = false) {
+        super.init(type: type, text: escape(text, quote: escapeQuote))
     }
     override func render() -> String {
         return text
@@ -71,7 +71,7 @@ class Heading: TokenBase {
 class BlockCode: TokenEscapedText {
     var lang = String()
     init (text:String, lang:String) {
-        super.init(type: "code", text: text)
+        super.init(type: "code", text: text, escapeQuote: true)
         self.lang = lang
     }
     override func render() -> String {

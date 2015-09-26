@@ -8,7 +8,7 @@
 
 import Foundation
 
-func escape(var text: String, quote: Bool = true) -> String {
+func escape(var text: String, quote: Bool = false) -> String {
     text = text.stringByReplacingOccurrencesOfString("&", withString: "&amp;", options: NSStringCompareOptions.LiteralSearch, range: nil)
     text = text.stringByReplacingOccurrencesOfString("<", withString: "&lt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
     text = text.stringByReplacingOccurrencesOfString(">", withString: "&gt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
@@ -19,11 +19,19 @@ func escape(var text: String, quote: Bool = true) -> String {
     return text
 }
 
+func preprocessing(var text:String, tab: Int=4) -> String {
+    text = text.stringByReplacingOccurrencesOfString("\t", withString: " ".repeatString(tab))
+    text = text.stringByReplacingOccurrencesOfString("\u{00a0}", withString: "")
+    text = text.stringByReplacingOccurrencesOfString("\u{2424}", withString: "\n")
+    
+    let leadingSpaceRegex = try! NSRegularExpression(pattern: "^ +$", options: NSRegularExpressionOptions.AnchorsMatchLines)
+    text = leadingSpaceRegex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
+    return text
+}
+
 func trimWhitespace(text: String) -> String {
-    if let regex = try? NSRegularExpression(pattern: "\\s", options: NSRegularExpressionOptions.CaseInsensitive) {
-        return regex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
-    }
-    return ""
+    let regex = try! NSRegularExpression(pattern: "\\s", options: NSRegularExpressionOptions.CaseInsensitive)
+    return regex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
 }
 
 func getPurePattern(pattern:String) -> String {
@@ -454,7 +462,7 @@ private func needInLineParsing(token: TokenBase) -> Bool {
 
 private func parse(text:String) -> String {
     var result = String()
-    let tokens = blockParser.parse(text)
+    let tokens = blockParser.parse(preprocessing(text))
     // Setup deflinks
     inlineParser.links = blockParser.definedLinks
     for token in tokens {
