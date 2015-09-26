@@ -8,27 +8,33 @@
 
 import Foundation
 
+extension String {
+    var length : Int {
+        return self.characters.count
+    }
+}
+
 class Regex : Hashable, Equatable{
-    private var _re:NSRegularExpression?
-    var _pattern:String
-    var _matches:RegexMatch?
-    var _error:NSError?
+    private var re:NSRegularExpression?
+    var pattern:String
+    var matches:RegexMatch?
     var hashValue: Int {
         get {
-            return self._pattern.hash
+            return self.pattern.hash
         }
     }
     
     init(pattern:String) {
-        _pattern = pattern
-        _re = NSRegularExpression(pattern: _pattern, options: NSRegularExpressionOptions.CaseInsensitive, error: &_error)
+        self.pattern = pattern
+        self.re = try? NSRegularExpression(pattern: self.pattern, options: NSRegularExpressionOptions.CaseInsensitive)
+
     }
     
     func match(str:String) -> RegexMatch? {
-        if let re = _re {
-            _matches = RegexMatch(str:str, matches: re.matchesInString(str, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, countElements(str))))
-            if _matches?.matchCount > 0 {
-                return _matches
+        if let re = self.re {
+            self.matches = RegexMatch(str:str, matches: re.matchesInString(str, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, str.length)))
+            if self.matches?.matchCount > 0 {
+                return self.matches
             }
             else {
                 return nil
@@ -39,7 +45,7 @@ class Regex : Hashable, Equatable{
 }
 
 func == (lhs: Regex, rhs: Regex) -> Bool {
-    return lhs._pattern == rhs._pattern
+    return lhs.pattern == rhs.pattern
 }
 
 
@@ -57,17 +63,17 @@ class RegexMatch  {
         if let _matches = matches {
             _m = _matches
             matchCount = _matches.count
-            let matches = _m as [NSTextCheckingResult]
+            let matches = _m as! [NSTextCheckingResult]
             for match in matches  {
                 rangeCount = match.numberOfRanges
                 for i in 0..<match.numberOfRanges {
                     let range = match.rangeAtIndex(i)
-                    if range.location > countElements(_str) {
+                    if range.location > _str.characters.count {
                         rangeCount--
                         continue;
                     }
-                    start.append(advance(_str.startIndex, range.location))
-                    end.append(advance(start.last!, range.length))
+                    start.append(_str.startIndex.advancedBy(range.location))
+                    end.append(start.last!.advancedBy(range.length))
                     let r = _str.substringWithRange(Range<String.Index>(start: start.last!, end: end.last!))
                     matchedString.append(r)
                 }

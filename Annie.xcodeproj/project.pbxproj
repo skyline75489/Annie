@@ -174,6 +174,7 @@
 		2DA00E351A5BB81B00C2AADF /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 0700;
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = skyline;
 				TargetAttributes = {
@@ -424,6 +425,7 @@
 				2DA00E561A5BB81B00C2AADF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		2DA00E571A5BB81B00C2AADF /* Build configuration list for PBXNativeTarget "AnnieTests" */ = {
 			isa = XCConfigurationList;
@@ -432,6 +434,7 @@
 				2DA00E591A5BB81B00C2AADF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

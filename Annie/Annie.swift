@@ -46,7 +46,7 @@ class BlockParser {
         
         let def_links_regex = self.grammarRegexMap["def_links"]!
         let def_footnotes_regex = self.grammarRegexMap["def_footnotes"]!
-        let list_block_pattern = String(format: "^( *)([*+-]|\\d+\\.) [\\s\\S]+?(?:\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))|\\n+(?=%s)|\\n{2,}(?! )(?!\\1(?:[*+-]|\\d+\\.) )\\n*|\\s*$)", def_links_regex._pattern)
+        let list_block_pattern = String(format: "^( *)([*+-]|\\d+\\.) [\\s\\S]+?(?:\\n+(?=\\1?(?:[-*_] *){3,}(?:\\n+|$))|\\n+(?=%s)|\\n{2,}(?! )(?!\\1(?:[*+-]|\\d+\\.) )\\n*|\\s*$)", def_links_regex.pattern)
         
         addGrammar("list_block", regex: Regex(pattern: list_block_pattern))
         addGrammar("list_item", regex: Regex(pattern: "^(( *)(?:[*+-]|\\d+\\.) [^\\n]*(?:\\n(?!\\2(?:[*+-]|\\d+\\.) )[^\\n]*)*)"))
@@ -59,7 +59,7 @@ class BlockParser {
     }
     
     func forward(inout text:String, length:Int) {
-        text.removeRange(Range<String.Index>(start: text.startIndex, end: advance(text.startIndex,length)))
+        text.removeRange(Range<String.Index>(start: text.startIndex, end: text.startIndex.advancedBy(length)))
     }
     
     func parse(var text:String, rules: [String] = []) -> [TokenBase]{
@@ -101,7 +101,7 @@ class BlockParser {
         for rule in rules {
             if let regex  = grammarRegexMap[rule] {
                 if let m = regex.match(text) {
-                    let forwardLength = countElements(m.group(0))
+                    let forwardLength = m.group(0).length
                     
                     // Special case
                     if rule == "def_links" {
@@ -121,18 +121,18 @@ class BlockParser {
             }
         }
         // Move one character. Otherwise may case infinate loop
-        return (TokenBase(type: " ", text: text.substringToIndex(advance(text.startIndex, 1))) , 1)
+        return (TokenBase(type: " ", text: text.substringToIndex(text.startIndex.advancedBy(1))), 1)
     }
     
     func parseNewline(m: RegexMatch) -> TokenBase {
-        let length = countElements(m.group(0))
+        let length = m.group(0).length
         if length > 1 {
             return NewLine()
         }
         return TokenNone()
     }
     func parseHeading(m: RegexMatch) -> TokenBase {
-        return Heading(text: m.group(2), level: countElements(m.group(1)))
+        return Heading(text: m.group(2), level: m.group(1).length)
     }
     
     func parseLHeading(m: RegexMatch) -> TokenBase {
@@ -160,16 +160,15 @@ class BlockParser {
     func parseBlockQuote(m: RegexMatch) -> TokenBase {
         let start = BlockQuote(type: "blockQuoteStart", text: "")
         tokens.append(start)
-        var cap = m.group(0)
+        let cap = m.group(0)
         
         let pattern = Regex(pattern: "^ *> ?")
-        var previousIndex = 0
         var newCap = ""
         
         // NSRegularExpressoin doesn't support replacement in multilines
         // We have to manually split the captured String into multiple lines
         let lines = cap.componentsSeparatedByString("\n")
-        for (index, var everyMatch) in enumerate(lines) {
+        for (_, var everyMatch) in lines.enumerate() {
             if let match = pattern.match(everyMatch) {
                 everyMatch.removeRange(match.range())
                 newCap += everyMatch + "\n"
@@ -248,7 +247,7 @@ class InlineParser {
     }
     
     func forward(inout text:String, length:Int) {
-        text.removeRange(Range<String.Index>(start: text.startIndex, end: advance(text.startIndex,length)))
+        text.removeRange(Range<String.Index>(start: text.startIndex, end: text.startIndex.advancedBy(length)))
     }
     
     func parse(inout text:String) {
@@ -297,14 +296,14 @@ class InlineParser {
         for regex in grammarList {
             if let m = regex.match(text) {
                 let name = grammarNameMap[regex]! // Name won't be nil
-                let forwardLength = countElements(m.group(0))
+                let forwardLength = m.group(0).length
                 
                 let parseFunction = chooseOutputFunctionForGrammar(name)
                 let tokenResult = parseFunction(m)
                 return (tokenResult, forwardLength)
             }
         }
-        return (TokenBase(type: " ", text: text.substringToIndex(advance(text.startIndex, 1))) , 1)
+        return (TokenBase(type: " ", text: text.substringToIndex(text.startIndex.advancedBy(1))) , 1)
     }
     
     func outputEscape(m: RegexMatch) -> TokenBase {
@@ -320,7 +319,7 @@ class InlineParser {
         return AutoLink(link: link, isEmail: isEmail)
     }
     func outputTag(m: RegexMatch) -> TokenBase {
-        var text = m.group(0)
+        let text = m.group(0)
         let lowerText = text.lowercaseString
         if lowerText.hasPrefix("<a ") {
             self.inLink = true
@@ -415,7 +414,7 @@ private func needInLineParsing(token: TokenBase) -> Bool {
 
 private func parse(text:String) -> String {
     var result = String()
-    var tokens = blockParser.parse(text)
+    let tokens = blockParser.parse(text)
     // Setup deflinks
     inlineParser.links = blockParser.definedLinks
     for token in tokens {

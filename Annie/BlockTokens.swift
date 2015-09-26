@@ -66,7 +66,7 @@ class BlockCode: TokenEscapedText {
         self.lang = lang
     }
     override func render() -> String {
-        if countElements(lang) == 0 {
+        if lang.length == 0 {
             return "<pre><code>\(text)\n</code></pre>\n"
         }
         return "<pre><code class=\"lang-\(lang)\">\(text)\n</code></pre>\n"
