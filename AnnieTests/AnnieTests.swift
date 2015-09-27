@@ -76,6 +76,16 @@ class AnnieTests: XCTestCase {
         XCTAssertEqual(test.realOutput, test.expectOutput)
     }
 
+    func testLinksInlineStyle() {
+        let test = getTestCaseFromFile("links_inline_style")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testLiteralQuotesInTitles() {
+        let test = getTestCaseFromFile("literal_quotes_in_titles")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
     func testNestedBlockQuotes() {
         let test = getTestCaseFromFile("nested_blockquotes")
         XCTAssertEqual(test.realOutput, test.expectOutput)
