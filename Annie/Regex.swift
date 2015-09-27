@@ -32,9 +32,9 @@ class Regex : Hashable, Equatable{
         }
     }
     
-    init(pattern:String) {
+    init(pattern:String, options: NSRegularExpressionOptions=NSRegularExpressionOptions.CaseInsensitive) {
         self.pattern = pattern
-        self.re = try? NSRegularExpression(pattern: self.pattern, options: NSRegularExpressionOptions.CaseInsensitive)
+        self.re = try? NSRegularExpression(pattern: self.pattern, options: options)
 
     }
     
@@ -87,6 +87,7 @@ class RegexMatch  {
                 }
             }
         }
+        _str = self.group(0)
     }
     
     func range() -> Range<String.Index> {

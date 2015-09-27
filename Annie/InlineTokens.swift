@@ -11,7 +11,7 @@ import Foundation
 class InlineCode: TokenEscapedText {
     var lang = ""
     init (text:String) {
-        super.init(type: "code", text: text)
+        super.init(type: "code", text: text, smart_amp: false)
     }
     override func render() -> String {
         return "<code>\(text)</code>"
@@ -73,7 +73,7 @@ class AutoLink: TokenBase {
     }
 }
 
-class Link: TokenEscapedText {
+class Link: TokenBase {
     var link = ""
     var title = ""
     var fullText = ""
@@ -85,7 +85,7 @@ class Link: TokenEscapedText {
         if title.isEmpty {
             self.fullText = "<a href=\"\(link)\">\(text)</a>"
         } else {
-            self.fullText = "<a href=\"\(link)\" title=\"\(escape(title))\">\(text)</a>"
+            self.fullText = "<a href=\"\(link)\" title=\"\(escape(title, quote: true))\">\(escape(text))</a>"
         }
     }
     

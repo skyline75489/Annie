@@ -8,8 +8,16 @@
 
 import Foundation
 
-func escape(var text: String, quote: Bool = false) -> String {
-    text = text.stringByReplacingOccurrencesOfString("&", withString: "&amp;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+func escape(var text: String, quote: Bool=false, smart_amp: Bool=true) -> String {
+    
+    let escapeRegex = try! NSRegularExpression(pattern: "&(?!#?\\w+;)", options: NSRegularExpressionOptions.CaseInsensitive)
+    
+    if smart_amp {
+        text = escapeRegex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "&amp;")
+    } else {
+        text = text.stringByReplacingOccurrencesOfString("&", withString: "&amp;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+    }
+    
     text = text.stringByReplacingOccurrencesOfString("<", withString: "&lt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
     text = text.stringByReplacingOccurrencesOfString(">", withString: "&gt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
     if quote {
@@ -20,6 +28,8 @@ func escape(var text: String, quote: Bool = false) -> String {
 }
 
 func preprocessing(var text:String, tab: Int=4) -> String {
+    let newlineRegex = try! NSRegularExpression(pattern: "\\r\\n|\\r", options: NSRegularExpressionOptions.CaseInsensitive)
+    text = newlineRegex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "\n")
     text = text.stringByReplacingOccurrencesOfString("\t", withString: " ".repeatString(tab))
     text = text.stringByReplacingOccurrencesOfString("\u{00a0}", withString: "")
     text = text.stringByReplacingOccurrencesOfString("\u{2424}", withString: "\n")
@@ -85,11 +95,11 @@ class BlockParser {
         addGrammar("fences", regex: Regex(pattern: fences_regex))
         addGrammar("block_code", regex: Regex(pattern: block_code_regex))
         addGrammar("hrule", regex: Regex(pattern: hrule_regex))
-        addGrammar("block_quote", regex: Regex(pattern: block_code_regex))
+        addGrammar("block_quote", regex: Regex(pattern: block_quote_regex))
         
         
         addGrammar("list_block", regex: Regex(pattern: list_block_regex))
-        addGrammar("list_item", regex: Regex(pattern: list_item_regex))
+        addGrammar("list_item", regex: Regex(pattern: list_item_regex, options: NSRegularExpressionOptions.AnchorsMatchLines))
         addGrammar("list_bullet", regex: Regex(pattern: list_bullet_regex))
         addGrammar("paragraph", regex: Regex(pattern: paragraph_regex))
         addGrammar("text", regex: Regex(pattern: text_regex))

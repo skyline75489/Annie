@@ -34,6 +34,38 @@ class AnnieTests: XCTestCase {
         return (trimWhitespace(String(output!)),trimWhitespace(markdown(String(input!))))
     }
     
+    
+    func testAmpAndAnglesEncodeing() {
+        let test = getTestCaseFromFile("amps_and_angles_encoding")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testAutoEmail() {
+        let test = getTestCaseFromFile("auto_email")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testAutoLinks() {
+        let test = getTestCaseFromFile("auto_links")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testBackSlashEscapes() {
+        let test = getTestCaseFromFile("backslash_escapes")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testCodeBlocks() {
+        let test = getTestCaseFromFile("code_blocks")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+
+    func testCodeSpan() {
+        let test = getTestCaseFromFile("code_spans")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+
     func testHeaders() {
         let test = getTestCaseFromFile("headers")
         XCTAssertEqual(test.realOutput, test.expectOutput)
@@ -43,19 +75,19 @@ class AnnieTests: XCTestCase {
         let test = getTestCaseFromFile("horizontal_rules")
         XCTAssertEqual(test.realOutput, test.expectOutput)
     }
-    
+
+    func testNestedBlockQuotes() {
+        let test = getTestCaseFromFile("nested_blockquotes")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+
     func testStrongAndEm() {
         let test = getTestCaseFromFile("strong_and_em_together")
         XCTAssertEqual(test.realOutput, test.expectOutput)
     }
     
-    func testCodeSpan() {
-        let test = getTestCaseFromFile("code_spans")
-        XCTAssertEqual(test.realOutput, test.expectOutput)
-    }
-    
-    func testCodeBlocks() {
-        let test = getTestCaseFromFile("code_blocks")
+    func testTidyness() {
+        let test = getTestCaseFromFile("tidyness")
         XCTAssertEqual(test.realOutput, test.expectOutput)
     }
 }
