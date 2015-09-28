@@ -29,6 +29,12 @@ class TokenNone: TokenBase {
     }
 }
 
+class TokenInParagraph: TokenBase {
+    override func render() -> String {
+        return "<p>\(text)</p>"
+    }
+}
+
 class TokenEscapedText: TokenBase {
     init (type:String, text:String, quote: Bool=false, smart_amp: Bool=true) {
         super.init(type: type, text: escape(text, quote: quote, smart_amp: smart_amp))
@@ -133,6 +139,19 @@ class ListItem: TokenBase {
             return "<li>"
         } else {
             return "</li>"
+        }
+    }
+}
+
+class LooseListItem:TokenBase {
+    init(type: String) {
+        super.init(type: type, text: "")
+    }
+    override func render() -> String {
+        if type == "looseListItemStart" {
+            return "<li><p>"
+        } else {
+            return "</p></li>"
         }
     }
 }

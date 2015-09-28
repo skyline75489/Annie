@@ -55,6 +55,11 @@ class AnnieTests: XCTestCase {
         XCTAssertEqual(test.realOutput, test.expectOutput)
     }
     
+    func testBlockQuotesWithCodeBlocks() {
+        let test = getTestCaseFromFile("blockquotes_with_code_blocks")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
     func testCodeBlocks() {
         let test = getTestCaseFromFile("code_blocks")
         XCTAssertEqual(test.realOutput, test.expectOutput)
@@ -81,6 +86,16 @@ class AnnieTests: XCTestCase {
         XCTAssertEqual(test.realOutput, test.expectOutput)
     }
     
+    func testLinksReferenceStyle() {
+        let test = getTestCaseFromFile("links_reference_style")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
+    func testShortCutRefernces() {
+        let test = getTestCaseFromFile("links_shortcut_references")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }
+    
     func testLiteralQuotesInTitles() {
         let test = getTestCaseFromFile("literal_quotes_in_titles")
         XCTAssertEqual(test.realOutput, test.expectOutput)
@@ -91,6 +106,11 @@ class AnnieTests: XCTestCase {
         XCTAssertEqual(test.realOutput, test.expectOutput)
     }
 
+    /*func testLists() {
+        let test = getTestCaseFromFile("ordered_and_unordered_lists")
+        XCTAssertEqual(test.realOutput, test.expectOutput)
+    }*/
+    
     func testStrongAndEm() {
         let test = getTestCaseFromFile("strong_and_em_together")
         XCTAssertEqual(test.realOutput, test.expectOutput)

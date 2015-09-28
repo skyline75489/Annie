@@ -52,6 +52,11 @@ func getPurePattern(pattern:String) -> String {
     return p
 }
 
+func keyify(key: String) -> String {
+    let keyWhiteSpaceRegex = try! NSRegularExpression(pattern: "\\s+", options: NSRegularExpressionOptions.CaseInsensitive)
+    return keyWhiteSpaceRegex.stringByReplacingMatchesInString(key.lowercaseString, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, key.length), withTemplate: " ")
+}
+
 class BlockParser {
     var definedLinks = [String:[String:String]]()
     var tokens = [TokenBase]()
@@ -236,30 +241,46 @@ class BlockParser {
         let ordered = bull.rangeOfString(".") != nil
         tokens.append(ListBlock(type: "listBlockStart", ordered: ordered))
         let caps = m._str.componentsSeparatedByString("\n")
+        let loose_list_regex = Regex(pattern: "\\n\\n(?!\\s*$)")
+        
+        var loose = false
+        if loose_list_regex.match(m._str) != nil {
+            loose = true
+        }
         for cap in caps {
-            processListItem(cap, bull: bull)
+            processListItem(cap, bull: bull, loose:loose)
         }
         tokens.append(ListBlock(type: "listBlockEnd", ordered: ordered))
     }
     
-    func processListItem(cap: String, bull: String) {
-        if cap.isEmpty {
+    func processListItem(cap: String, bull: String, loose: Bool=false) {
+        if trimWhitespace(cap).isEmpty {
             return
         }
         let list_item_regex = self.grammarRegexMap["list_item"]!
-        tokens.append(ListItem(type: "listItemStart"))
+        
         if let caps = list_item_regex.match(cap) {
             var text = caps.group(0)
             let list_bullet_regex = self.grammarRegexMap["list_bullet"]!
             if let m = list_bullet_regex.match(text) {
                 text.removeRange(m.range())
             }
+            if loose {
+                tokens.append(LooseListItem(type: "looseListItemStart"))
+            } else {
+                tokens.append(ListItem(type: "listItemStart"))
+            }
             self.parse(text, rules: listRules)
         }
-        tokens.append(ListItem(type: "listItemEnd"))
+        if loose {
+            tokens.append(LooseListItem(type: "looseListItemEnd"))
+        } else {
+            tokens.append(ListItem(type: "listItemEnd"))
+        }
     }
+    
     func parseDefLinks(m: RegexMatch) {
-        let key = m.group(1)
+        let key = keyify(m.group(1))
         definedLinks[key] = [
             "link": m.group(2),
             "title": m.matchedString.count > 3 ? m.group(3) : ""
@@ -333,6 +354,8 @@ class InlineParser {
             return outputTag
         case "reflink":
             return outputRefLink
+        case "nolink":
+            return outputNoLink
         case "double_emphasis":
             return outputDoubleEmphasis
         case "emphasis":
@@ -358,6 +381,9 @@ class InlineParser {
                 
                 let parseFunction = chooseOutputFunctionForGrammar(name)
                 let tokenResult = parseFunction(m)
+                if tokenResult is TokenNone {
+                    continue
+                }
                 return (tokenResult, forwardLength)
             }
         }
@@ -402,7 +428,7 @@ class InlineParser {
     }
     
     func outputRefLink(m: RegexMatch) -> TokenBase {
-        let key = m.group(2).isEmpty ? m.group(1) : m.group(2)
+        let key = keyify(m.group(2).isEmpty ? m.group(1) : m.group(2))
         if let ret = links[key] {
             // If links[key] exists, the link and title won't be nil
             // We can safely unwrap it
@@ -413,7 +439,7 @@ class InlineParser {
     }
     
     func outputNoLink(m: RegexMatch) -> TokenBase {
-        let key = m.group(1)
+        let key = keyify(m.group(1))
         if let ret = self.links[key] {
             return processLink(m, link: ret["link"]!, title: ret["title"]!)
         } else {
