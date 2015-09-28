@@ -20,6 +20,28 @@ extension String {
         }
         return result
     }
+    
+    private var WHITESPACE_REGEXP: String {
+        return "[\t\n\r\u{11}\u{12} ]"
+    }
+    
+    func lstrip(s:String) -> String {
+        let re = try! NSRegularExpression(pattern: s, options: NSRegularExpressionOptions.CaseInsensitive)
+        return re.stringByReplacingMatchesInString(self, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, self.length), withTemplate: "")
+    }
+    
+    func lstrip() -> String {
+        return self.lstrip("^\(self.WHITESPACE_REGEXP)+")
+    }
+    
+    func rstrip(s:String) -> String {
+        let re = try! NSRegularExpression(pattern: s, options: NSRegularExpressionOptions.CaseInsensitive)
+        return re.stringByReplacingMatchesInString(self, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, self.length), withTemplate: "")
+    }
+    
+    func rstrip() -> String {
+        return self.rstrip("\(self.WHITESPACE_REGEXP)+$")
+    }
 }
 
 class Regex : Hashable, Equatable{
