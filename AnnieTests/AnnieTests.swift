@@ -22,14 +22,14 @@ class AnnieTests: XCTestCase {
         super.tearDown()
     }
     
-    func getTestCaseFromFile(name:String) -> (expectOutput:String, realOutput :String) {
+    func getTestCaseFromFile(_ name:String) -> (expectOutput:String, realOutput :String) {
         var input:NSString?
         var output: NSString?
-        if let url1 = NSBundle(forClass: self.dynamicType).URLForResource(name, withExtension: "text") {
-            input = try? NSString(contentsOfURL: url1, encoding: NSUTF8StringEncoding)
+        if let url1 = Bundle(for: type(of: self)).url(forResource: name, withExtension: "text") {
+            input = try? NSString(contentsOf: url1, encoding: String.Encoding.utf8.rawValue)
         }
-        if let url2 = NSBundle(forClass: self.dynamicType).URLForResource(name, withExtension: "html") {
-            output = try? NSString(contentsOfURL: url2, encoding: NSUTF8StringEncoding)
+        if let url2 = Bundle(for: type(of: self)).url(forResource: name, withExtension: "html") {
+            output = try? NSString(contentsOf: url2, encoding: String.Encoding.utf8.rawValue)
         }
         return (trimWhitespace(String(output!)),trimWhitespace(markdown(String(input!))))
     }

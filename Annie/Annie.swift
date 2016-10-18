@@ -8,53 +8,55 @@
 
 import Foundation
 
-func escape(var text: String, quote: Bool=false, smart_amp: Bool=true) -> String {
+func escape(_ text: String, quote: Bool=false, smart_amp: Bool=true) -> String {
+    var text = text
     
-    let escapeRegex = try! NSRegularExpression(pattern: "&(?!#?\\w+;)", options: NSRegularExpressionOptions.CaseInsensitive)
+    let escapeRegex = try! NSRegularExpression(pattern: "&(?!#?\\w+;)", options: NSRegularExpression.Options.caseInsensitive)
     
     if smart_amp {
-        text = escapeRegex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "&amp;")
+        text = escapeRegex.stringByReplacingMatches(in: text, options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, text.length), withTemplate: "&amp;")
     } else {
-        text = text.stringByReplacingOccurrencesOfString("&", withString: "&amp;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+        text = text.replacingOccurrences(of: "&", with: "&amp;", options: NSString.CompareOptions.literal, range: nil)
     }
     
-    text = text.stringByReplacingOccurrencesOfString("<", withString: "&lt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
-    text = text.stringByReplacingOccurrencesOfString(">", withString: "&gt;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+    text = text.replacingOccurrences(of: "<", with: "&lt;", options: NSString.CompareOptions.literal, range: nil)
+    text = text.replacingOccurrences(of: ">", with: "&gt;", options: NSString.CompareOptions.literal, range: nil)
     if quote {
-        text = text.stringByReplacingOccurrencesOfString("\"", withString: "&quot;", options: NSStringCompareOptions.LiteralSearch, range: nil)
-        text = text.stringByReplacingOccurrencesOfString("'", withString: "&#39;", options: NSStringCompareOptions.LiteralSearch, range: nil)
+        text = text.replacingOccurrences(of: "\"", with: "&quot;", options: NSString.CompareOptions.literal, range: nil)
+        text = text.replacingOccurrences(of: "'", with: "&#39;", options: NSString.CompareOptions.literal, range: nil)
     }
     return text
 }
 
-func preprocessing(var text:String, tab: Int=4) -> String {
-    let newlineRegex = try! NSRegularExpression(pattern: "\\r\\n|\\r", options: NSRegularExpressionOptions.CaseInsensitive)
-    text = newlineRegex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "\n")
-    text = text.stringByReplacingOccurrencesOfString("\t", withString: " ".repeatString(tab))
-    text = text.stringByReplacingOccurrencesOfString("\u{00a0}", withString: "")
-    text = text.stringByReplacingOccurrencesOfString("\u{2424}", withString: "\n")
+func preprocessing(_ text:String, tab: Int=4) -> String {
+    var text = text
+    let newlineRegex = try! NSRegularExpression(pattern: "\\r\\n|\\r", options: NSRegularExpression.Options.caseInsensitive)
+    text = newlineRegex.stringByReplacingMatches(in: text, options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, text.length), withTemplate: "\n")
+    text = text.replacingOccurrences(of: "\t", with: " ".repeatString(tab))
+    text = text.replacingOccurrences(of: "\u{00a0}", with: "")
+    text = text.replacingOccurrences(of: "\u{2424}", with: "\n")
     
-    let leadingSpaceRegex = try! NSRegularExpression(pattern: "^ +$", options: NSRegularExpressionOptions.AnchorsMatchLines)
-    text = leadingSpaceRegex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
+    let leadingSpaceRegex = try! NSRegularExpression(pattern: "^ +$", options: NSRegularExpression.Options.anchorsMatchLines)
+    text = leadingSpaceRegex.stringByReplacingMatches(in: text, options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
     return text
 }
 
-func trimWhitespace(text: String) -> String {
-    let regex = try! NSRegularExpression(pattern: "\\s", options: NSRegularExpressionOptions.CaseInsensitive)
-    return regex.stringByReplacingMatchesInString(text, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
+func trimWhitespace(_ text: String) -> String {
+    let regex = try! NSRegularExpression(pattern: "\\s", options: NSRegularExpression.Options.caseInsensitive)
+    return regex.stringByReplacingMatches(in: text, options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, text.length), withTemplate: "")
 }
 
-func getPurePattern(pattern:String) -> String {
+func getPurePattern(_ pattern:String) -> String {
     var p = pattern
     if pattern.hasPrefix("^") {
-        p = pattern.substringFromIndex(pattern.startIndex.advancedBy(1))
+        p = pattern.substring(from: pattern.characters.index(pattern.startIndex, offsetBy: 1))
     }
     return p
 }
 
-func keyify(key: String) -> String {
-    let keyWhiteSpaceRegex = try! NSRegularExpression(pattern: "\\s+", options: NSRegularExpressionOptions.CaseInsensitive)
-    return keyWhiteSpaceRegex.stringByReplacingMatchesInString(key.lowercaseString, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, key.length), withTemplate: " ")
+func keyify(_ key: String) -> String {
+    let keyWhiteSpaceRegex = try! NSRegularExpression(pattern: "\\s+", options: NSRegularExpression.Options.caseInsensitive)
+    return keyWhiteSpaceRegex.stringByReplacingMatches(in: key.lowercased(), options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, key.length), withTemplate: " ")
 }
 
 class BlockParser {
@@ -86,7 +88,7 @@ class BlockParser {
         let list_item_regex = "^(( *)(?:[*+-]|\\d+\\.) [^\\n]*(?:\\n(?!\\2(?:[*+-]|\\d+\\.) )[^\\n]*)*)"
         let list_bullet_regex = "^ *(?:[*+-]|\\d+\\.) +"
         
-        let paragraph_regex = String(format: "^((?:[^\\n]+\\n?(?!%@|%@|%@|%@|%@|%@|%@))+)\\n*",  getPurePattern(fences_regex).stringByReplacingOccurrencesOfString("\\1", withString: "\\2"), getPurePattern(list_block_regex).stringByReplacingOccurrencesOfString("\\1", withString: "\\3"), getPurePattern(hrule_regex), getPurePattern(heading_regex), getPurePattern(lheading_regex), getPurePattern(block_quote_regex), getPurePattern(def_links_regex))
+        let paragraph_regex = String(format: "^((?:[^\\n]+\\n?(?!%@|%@|%@|%@|%@|%@|%@))+)\\n*",  getPurePattern(fences_regex).replacingOccurrences(of: "\\1", with: "\\2"), getPurePattern(list_block_regex).replacingOccurrences(of: "\\1", with: "\\3"), getPurePattern(hrule_regex), getPurePattern(heading_regex), getPurePattern(lheading_regex), getPurePattern(block_quote_regex), getPurePattern(def_links_regex))
         
         let text_regex = "^[^\n]+"
         
@@ -104,21 +106,22 @@ class BlockParser {
         
         
         addGrammar("list_block", regex: Regex(pattern: list_block_regex))
-        addGrammar("list_item", regex: Regex(pattern: list_item_regex, options: NSRegularExpressionOptions.AnchorsMatchLines))
+        addGrammar("list_item", regex: Regex(pattern: list_item_regex, options: NSRegularExpression.Options.anchorsMatchLines))
         addGrammar("list_bullet", regex: Regex(pattern: list_bullet_regex))
         addGrammar("paragraph", regex: Regex(pattern: paragraph_regex))
         addGrammar("text", regex: Regex(pattern: text_regex))
     }
     
-    func addGrammar(name:String, regex:Regex) {
+    func addGrammar(_ name:String, regex:Regex) {
         grammarRegexMap[name] = regex
     }
     
-    func forward(inout text:String, length:Int) {
-        text.removeRange(Range<String.Index>(start: text.startIndex, end: text.startIndex.advancedBy(length)))
+    func forward(_ text:inout String, length:Int) {
+        text.removeSubrange((text.startIndex ..< text.characters.index(text.startIndex, offsetBy: length)))
     }
     
-    func parse(var text:String, rules: [String] = []) -> [TokenBase]{
+    func parse(_ text:String, rules: [String] = []) -> [TokenBase]{
+        var text = text
         while !text.isEmpty {
             let token = getNextToken(text, rules: rules)
             tokens.append(token.token)
@@ -127,7 +130,7 @@ class BlockParser {
         return tokens
     }
     
-    func chooseParseFunction(name:String) -> (RegexMatch) -> TokenBase {
+    func chooseParseFunction(_ name:String) -> (RegexMatch) -> TokenBase {
         switch name {
         case "newline":
             return parseNewline
@@ -152,7 +155,8 @@ class BlockParser {
         }
     }
     
-    func getNextToken(text:String, var rules: [String]) -> (token:TokenBase, length:Int) {
+    func getNextToken(_ text:String, rules: [String]) -> (token:TokenBase, length:Int) {
+        var rules = rules
         if rules.isEmpty {
             rules = defaultRules
         }
@@ -179,43 +183,43 @@ class BlockParser {
             }
         }
         // Move one character. Otherwise may case infinate loop
-        return (TokenBase(type: " ", text: text.substringToIndex(text.startIndex.advancedBy(1))), 1)
+        return (TokenBase(type: " ", text: text.substring(to: text.characters.index(text.startIndex, offsetBy: 1))), 1)
     }
     
-    func parseNewline(m: RegexMatch) -> TokenBase {
+    func parseNewline(_ m: RegexMatch) -> TokenBase {
         let length = m.group(0).length
         if length > 1 {
             return NewLine()
         }
         return TokenNone()
     }
-    func parseHeading(m: RegexMatch) -> TokenBase {
+    func parseHeading(_ m: RegexMatch) -> TokenBase {
         return Heading(text: m.group(2), level: m.group(1).length)
     }
     
-    func parseLHeading(m: RegexMatch) -> TokenBase {
+    func parseLHeading(_ m: RegexMatch) -> TokenBase {
         let level = m.group(2) == "=" ? 1 : 2;
         return Heading(text: m.group(1), level: level)
     }
     
-    func parseFences(m: RegexMatch) -> TokenBase {
+    func parseFences(_ m: RegexMatch) -> TokenBase {
         return BlockCode(text: m.group(3), lang: m.group(2))
     }
     
-    func parseBlockCode(m: RegexMatch) -> TokenBase {
-        var code = String(m.group(0))
+    func parseBlockCode(_ m: RegexMatch) -> TokenBase {
+        var code = String(m.group(0))!
         let pattern = Regex(pattern: "^ {4}")
         if let match = pattern.match(code) {
-            code.removeRange(match.range())
+            code.removeSubrange(match.range())
         }
         return BlockCode(text: code, lang: "")
     }
     
-    func parseHRule(m: RegexMatch) -> TokenBase {
+    func parseHRule(_ m: RegexMatch) -> TokenBase {
         return HRule()
     }
     
-    func parseBlockQuote(m: RegexMatch) -> TokenBase {
+    func parseBlockQuote(_ m: RegexMatch) -> TokenBase {
         let start = BlockQuote(type: "blockQuoteStart", text: "")
         tokens.append(start)
         let cap = m.group(0)
@@ -225,22 +229,22 @@ class BlockParser {
         
         // NSRegularExpressoin doesn't support replacement in multilines
         // We have to manually split the captured String into multiple lines
-        let lines = cap.componentsSeparatedByString("\n")
-        for (_, var everyMatch) in lines.enumerate() {
+        let lines = cap.components(separatedBy: "\n")
+        for (_, var everyMatch) in lines.enumerated() {
             if let match = pattern.match(everyMatch) {
-                everyMatch.removeRange(match.range())
+                everyMatch.removeSubrange(match.range())
                 newCap += everyMatch + "\n"
             }
         }
-        self.parse(newCap)
+        _ = self.parse(newCap)
         return BlockQuote(type: "blockQuoteEnd", text: "")
     }
     
-    func parseListBlock(m: RegexMatch) {
+    func parseListBlock(_ m: RegexMatch) {
         let bull = m.group(2)
-        let ordered = bull.rangeOfString(".") != nil
+        let ordered = bull.range(of: ".") != nil
         tokens.append(ListBlock(type: "listBlockStart", ordered: ordered))
-        let caps = m._str.componentsSeparatedByString("\n")
+        let caps = m._str.components(separatedBy: "\n")
         let loose_list_regex = Regex(pattern: "\\n\\n(?!\\s*$)")
         
         var loose = false
@@ -253,7 +257,7 @@ class BlockParser {
         tokens.append(ListBlock(type: "listBlockEnd", ordered: ordered))
     }
     
-    func processListItem(cap: String, bull: String, loose: Bool=false) {
+    func processListItem(_ cap: String, bull: String, loose: Bool=false) {
         if trimWhitespace(cap).isEmpty {
             return
         }
@@ -263,14 +267,14 @@ class BlockParser {
             var text = caps.group(0)
             let list_bullet_regex = self.grammarRegexMap["list_bullet"]!
             if let m = list_bullet_regex.match(text) {
-                text.removeRange(m.range())
+                text.removeSubrange(m.range())
             }
             if loose {
                 tokens.append(LooseListItem(type: "looseListItemStart"))
             } else {
                 tokens.append(ListItem(type: "listItemStart"))
             }
-            self.parse(text, rules: listRules)
+            _ = self.parse(text, rules: listRules)
         }
         if loose {
             tokens.append(LooseListItem(type: "looseListItemEnd"))
@@ -279,7 +283,7 @@ class BlockParser {
         }
     }
     
-    func parseDefLinks(m: RegexMatch) {
+    func parseDefLinks(_ m: RegexMatch) {
         let key = keyify(m.group(1))
         definedLinks[key] = [
             "link": m.group(2),
@@ -287,12 +291,12 @@ class BlockParser {
         ]
     }
     
-    func parseParagraph(m: RegexMatch) -> TokenBase {
+    func parseParagraph(_ m: RegexMatch) -> TokenBase {
         let text = m.group(1)
         return Paragraph(text: text)
     }
     
-    func parseText(m: RegexMatch) -> TokenBase {
+    func parseText(_ m: RegexMatch) -> TokenBase {
         return TokenBase(type: "text", text: m.group(0))
     }
 }
@@ -320,16 +324,16 @@ class InlineParser {
         addGrammar("text", regex: Regex(pattern: "^[\\s\\S]+?(?=[\\\\<!\\[_*`~]|https?://| {2,}\n|$)"))
     }
     
-    func addGrammar(name:String, regex:Regex) {
+    func addGrammar(_ name:String, regex:Regex) {
         grammarNameMap[regex] = name
         grammarList.append(regex)
     }
     
-    func forward(inout text:String, length:Int) {
-        text.removeRange(Range<String.Index>(start: text.startIndex, end: text.startIndex.advancedBy(length)))
+    func forward(_ text:inout String, length:Int) {
+        text.removeSubrange((text.startIndex ..< text.characters.index(text.startIndex, offsetBy: length)))
     }
     
-    func parse(inout text:String) {
+    func parse(_ text:inout String) {
         var result = ""
         while !text.isEmpty {
             let token = getNextToken(text)
@@ -340,7 +344,7 @@ class InlineParser {
     }
     
     
-    func chooseOutputFunctionForGrammar(name:String) -> (RegexMatch) -> TokenBase {
+    func chooseOutputFunctionForGrammar(_ name:String) -> (RegexMatch) -> TokenBase {
         switch name {
         case "escape":
             return outputEscape
@@ -373,7 +377,7 @@ class InlineParser {
         }
     }
     
-    func getNextToken(text:String) -> (token:TokenBase, length:Int) {
+    func getNextToken(_ text:String) -> (token:TokenBase, length:Int) {
         for regex in grammarList {
             if let m = regex.match(text) {
                 let name = grammarNameMap[regex]! // Name won't be nil
@@ -387,14 +391,14 @@ class InlineParser {
                 return (tokenResult, forwardLength)
             }
         }
-        return (TokenBase(type: " ", text: text.substringToIndex(text.startIndex.advancedBy(1))) , 1)
+        return (TokenBase(type: " ", text: text.substring(to: text.characters.index(text.startIndex, offsetBy: 1))) , 1)
     }
     
-    func outputEscape(m: RegexMatch) -> TokenBase {
+    func outputEscape(_ m: RegexMatch) -> TokenBase {
         return TokenBase(type: "text", text: m.group(1))
     }
     
-    func outputAutoLink(m :RegexMatch) -> TokenBase {
+    func outputAutoLink(_ m :RegexMatch) -> TokenBase {
         let link = m.group(1)
         var isEmail = false
         if m.group(2) == "@" {
@@ -402,9 +406,9 @@ class InlineParser {
         }
         return AutoLink(link: link, isEmail: isEmail)
     }
-    func outputTag(m: RegexMatch) -> TokenBase {
+    func outputTag(_ m: RegexMatch) -> TokenBase {
         let text = m.group(0)
-        let lowerText = text.lowercaseString
+        let lowerText = text.lowercased()
         if lowerText.hasPrefix("<a ") {
             self.inLink = true
         }
@@ -414,7 +418,7 @@ class InlineParser {
         return TokenBase(type: "tag", text: text)
     }
     
-    func outputURL(m: RegexMatch) -> TokenBase {
+    func outputURL(_ m: RegexMatch) -> TokenBase {
         let link = m.group(1)
         if self.inLink {
             return TokenEscapedText(type: "text", text: link)
@@ -423,11 +427,11 @@ class InlineParser {
         }
     }
     
-    func outputLink(m: RegexMatch) -> TokenBase {
+    func outputLink(_ m: RegexMatch) -> TokenBase {
         return processLink(m, link: m.group(2), title: m.group(3))
     }
     
-    func outputRefLink(m: RegexMatch) -> TokenBase {
+    func outputRefLink(_ m: RegexMatch) -> TokenBase {
         let key = keyify(m.group(2).isEmpty ? m.group(1) : m.group(2))
         if let ret = links[key] {
             // If links[key] exists, the link and title won't be nil
@@ -438,7 +442,7 @@ class InlineParser {
         }
     }
     
-    func outputNoLink(m: RegexMatch) -> TokenBase {
+    func outputNoLink(_ m: RegexMatch) -> TokenBase {
         let key = keyify(m.group(1))
         if let ret = self.links[key] {
             return processLink(m, link: ret["link"]!, title: ret["title"]!)
@@ -447,36 +451,36 @@ class InlineParser {
         }
     }
     
-    func processLink(m: RegexMatch, link: String, title: String) -> TokenBase {
+    func processLink(_ m: RegexMatch, link: String, title: String) -> TokenBase {
         let text = m.group(1)
         return Link(title: title, link: link, text: text)
     }
     
-    func outputDoubleEmphasis(m: RegexMatch) -> TokenBase {
+    func outputDoubleEmphasis(_ m: RegexMatch) -> TokenBase {
         var text = m.group(2).isEmpty ? m.group(1) : m.group(2)
         self.parse(&text)
         return DoubleEmphasis(text: text)
     }
     
-    func outputEmphasis(m: RegexMatch) -> TokenBase {
+    func outputEmphasis(_ m: RegexMatch) -> TokenBase {
         var text = m.group(2).isEmpty ? m.group(1) : m.group(2)
         self.parse(&text)
         return Emphasis(text: text)
     }
     
-    func outputCode(m: RegexMatch) -> TokenBase {
+    func outputCode(_ m: RegexMatch) -> TokenBase {
         return InlineCode(text: m.group(2))
     }
     
-    func outputLineBreak(m: RegexMatch) -> TokenBase {
+    func outputLineBreak(_ m: RegexMatch) -> TokenBase {
         return LineBreak()
     }
     
-    func outputStrikeThrough(m: RegexMatch) -> TokenBase {
+    func outputStrikeThrough(_ m: RegexMatch) -> TokenBase {
         return StrikeThrough(text: m.group(1))
     }
     
-    func outputText(m: RegexMatch) -> TokenBase {
+    func outputText(_ m: RegexMatch) -> TokenBase {
         return TokenEscapedText(type: "text", text: m.group(0))
     }
 }
@@ -484,7 +488,7 @@ class InlineParser {
 let blockParser = BlockParser()
 let inlineParser = InlineParser()
 
-public func markdown(text:String) -> String {
+public func markdown(_ text:String) -> String {
     // Clean up
     blockParser.tokens = [TokenBase]()
     blockParser.definedLinks = [String:[String:String]]()
@@ -492,11 +496,11 @@ public func markdown(text:String) -> String {
     return parse(text)
 }
 
-private func needInLineParsing(token: TokenBase) -> Bool {
+private func needInLineParsing(_ token: TokenBase) -> Bool {
     return token.type == "text" || token.type == "heading" || token.type == "paragraph"
 }
 
-private func parse(text:String) -> String {
+private func parse(_ text:String) -> String {
     var result = String()
     let tokens = blockParser.parse(preprocessing(text))
     // Setup deflinks

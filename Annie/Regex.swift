@@ -7,36 +7,56 @@
 //
 
 import Foundation
+fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l < r
+  case (nil, _?):
+    return true
+  default:
+    return false
+  }
+}
+
+fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+  switch (lhs, rhs) {
+  case let (l?, r?):
+    return l > r
+  default:
+    return rhs < lhs
+  }
+}
+
 
 extension String {
     var length : Int {
         return self.characters.count
     }
     
-    func repeatString(n:Int) -> String {
+    func repeatString(_ n:Int) -> String {
         var result = self
         for _ in 1 ..< n {
-            result.appendContentsOf(self)
+            result.append(self)
         }
         return result
     }
     
-    private var WHITESPACE_REGEXP: String {
+    fileprivate var WHITESPACE_REGEXP: String {
         return "[\t\n\r\u{11}\u{12} ]"
     }
     
-    func lstrip(s:String) -> String {
-        let re = try! NSRegularExpression(pattern: s, options: NSRegularExpressionOptions.CaseInsensitive)
-        return re.stringByReplacingMatchesInString(self, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, self.length), withTemplate: "")
+    func lstrip(_ s:String) -> String {
+        let re = try! NSRegularExpression(pattern: s, options: NSRegularExpression.Options.caseInsensitive)
+        return re.stringByReplacingMatches(in: self, options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, self.length), withTemplate: "")
     }
     
     func lstrip() -> String {
         return self.lstrip("^\(self.WHITESPACE_REGEXP)+")
     }
     
-    func rstrip(s:String) -> String {
-        let re = try! NSRegularExpression(pattern: s, options: NSRegularExpressionOptions.CaseInsensitive)
-        return re.stringByReplacingMatchesInString(self, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, self.length), withTemplate: "")
+    func rstrip(_ s:String) -> String {
+        let re = try! NSRegularExpression(pattern: s, options: NSRegularExpression.Options.caseInsensitive)
+        return re.stringByReplacingMatches(in: self, options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, self.length), withTemplate: "")
     }
     
     func rstrip() -> String {
@@ -45,7 +65,7 @@ extension String {
 }
 
 class Regex : Hashable, Equatable{
-    private var re:NSRegularExpression?
+    fileprivate var re:NSRegularExpression?
     var pattern:String
     var matches:RegexMatch?
     var hashValue: Int {
@@ -54,15 +74,15 @@ class Regex : Hashable, Equatable{
         }
     }
     
-    init(pattern:String, options: NSRegularExpressionOptions=NSRegularExpressionOptions.CaseInsensitive) {
+    init(pattern:String, options: NSRegularExpression.Options=NSRegularExpression.Options.caseInsensitive) {
         self.pattern = pattern
         self.re = try? NSRegularExpression(pattern: self.pattern, options: options)
 
     }
     
-    func match(str:String) -> RegexMatch? {
+    func match(_ str:String) -> RegexMatch? {
         if let re = self.re {
-            self.matches = RegexMatch(str:str, matches: re.matchesInString(str, options: NSMatchingOptions.ReportProgress, range: NSMakeRange(0, str.length)))
+            self.matches = RegexMatch(str:str, matches: re.matches(in: str, options: NSRegularExpression.MatchingOptions.reportProgress, range: NSMakeRange(0, str.length)))
             if self.matches?.matchCount > 0 {
                 return self.matches
             }
@@ -80,7 +100,7 @@ func == (lhs: Regex, rhs: Regex) -> Bool {
 
 
 class RegexMatch  {
-    private var _m:[AnyObject]?
+    fileprivate var _m:[AnyObject]?
     var matchedString = [String]()
     var _str:String // String to match against
     var matchCount:Int = 0
@@ -97,14 +117,14 @@ class RegexMatch  {
             for match in matches  {
                 rangeCount = match.numberOfRanges
                 for i in 0..<match.numberOfRanges {
-                    let range = match.rangeAtIndex(i)
+                    let range = match.rangeAt(i)
                     if range.location > _str.characters.count {
-                        rangeCount--
+                        rangeCount -= 1
                         continue;
                     }
-                    start.append(_str.startIndex.advancedBy(range.location))
-                    end.append(start.last!.advancedBy(range.length))
-                    let r = _str.substringWithRange(Range<String.Index>(start: start.last!, end: end.last!))
+                    start.append(_str.characters.index(_str.startIndex, offsetBy: range.location))
+                    end.append(_str.index(start.last!, offsetBy: range.length))
+                    let r = _str.substring(with: (start.last! ..< end.last!))
                     matchedString.append(r)
                 }
             }
@@ -113,14 +133,14 @@ class RegexMatch  {
     }
     
     func range() -> Range<String.Index> {
-        return Range<String.Index>(start: self.start[0], end: self.end[0])
+        return (self.start[0] ..< self.end[0])
     }
     
-    func range(index:Int) -> Range<String.Index> {
-        return Range<String.Index>(start: self.start[index], end: self.end[index])
+    func range(_ index:Int) -> Range<String.Index> {
+        return (self.start[index] ..< self.end[index])
     }
     
-    func group(index:Int) -> String {
+    func group(_ index:Int) -> String {
         // Index out of bound
         if index >= matchedString.count {
             return ""
