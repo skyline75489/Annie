@@ -49,7 +49,7 @@ func trimWhitespace(_ text: String) -> String {
 func getPurePattern(_ pattern:String) -> String {
     var p = pattern
     if pattern.hasPrefix("^") {
-        p = pattern.substring(from: pattern.characters.index(pattern.startIndex, offsetBy: 1))
+        p = String(pattern[pattern.index(pattern.startIndex, offsetBy: 1)...])
     }
     return p
 }
@@ -117,7 +117,7 @@ class BlockParser {
     }
     
     func forward(_ text:inout String, length:Int) {
-        text.removeSubrange((text.startIndex ..< text.characters.index(text.startIndex, offsetBy: length)))
+        text.removeSubrange((text.startIndex ..< text.index(text.startIndex, offsetBy: length)))
     }
     
     func parse(_ text:String, rules: [String] = []) -> [TokenBase]{
@@ -183,7 +183,7 @@ class BlockParser {
             }
         }
         // Move one character. Otherwise may case infinate loop
-        return (TokenBase(type: " ", text: text.substring(to: text.characters.index(text.startIndex, offsetBy: 1))), 1)
+        return (TokenBase(type: " ", text: String(text[..<text.index(text.startIndex, offsetBy: 1)])), 1)
     }
     
     func parseNewline(_ m: RegexMatch) -> TokenBase {
@@ -207,7 +207,7 @@ class BlockParser {
     }
     
     func parseBlockCode(_ m: RegexMatch) -> TokenBase {
-        var code = String(m.group(0))!
+        var code = m.group(0)
         let pattern = Regex(pattern: "^ {4}")
         if let match = pattern.match(code) {
             code.removeSubrange(match.range())
@@ -330,7 +330,7 @@ class InlineParser {
     }
     
     func forward(_ text:inout String, length:Int) {
-        text.removeSubrange((text.startIndex ..< text.characters.index(text.startIndex, offsetBy: length)))
+        text.removeSubrange((text.startIndex ..< text.index(text.startIndex, offsetBy: length)))
     }
     
     func parse(_ text:inout String) {
@@ -391,7 +391,7 @@ class InlineParser {
                 return (tokenResult, forwardLength)
             }
         }
-        return (TokenBase(type: " ", text: text.substring(to: text.characters.index(text.startIndex, offsetBy: 1))) , 1)
+        return (TokenBase(type: " ", text: String(text[..<text.index(text.startIndex, offsetBy: 1)])) , 1)
     }
     
     func outputEscape(_ m: RegexMatch) -> TokenBase {

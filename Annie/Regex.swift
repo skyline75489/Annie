@@ -30,7 +30,7 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
 
 extension String {
     var length : Int {
-        return self.characters.count
+        return self.count
     }
     
     func repeatString(_ n:Int) -> String {
@@ -117,15 +117,15 @@ class RegexMatch  {
             for match in matches  {
                 rangeCount = match.numberOfRanges
                 for i in 0..<match.numberOfRanges {
-                    let range = match.rangeAt(i)
-                    if range.location > _str.characters.count {
+                    let range = match.range(at: i)
+                    if range.location > _str.count {
                         rangeCount -= 1
                         continue;
                     }
-                    start.append(_str.characters.index(_str.startIndex, offsetBy: range.location))
+                    start.append(_str.index(_str.startIndex, offsetBy: range.location))
                     end.append(_str.index(start.last!, offsetBy: range.length))
-                    let r = _str.substring(with: (start.last! ..< end.last!))
-                    matchedString.append(r)
+                    let r = _str[start.last! ..< end.last!]
+                    matchedString.append(String(r))
                 }
             }
         }
